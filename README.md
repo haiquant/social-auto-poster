@@ -1,32 +1,32 @@
-# lark-ai-bot
+# social-auto-poster
 
-A **Lark/Feishu chatbot** that turns a chat group into an ops console: ask it questions, get scheduled reports, and approve outgoing actions with one tap.
+**Config-driven social-media automation**: generate on-brand posts with an LLM, schedule them, and push only after human approval. Plug in any niche by editing one config file.
 
-> Demo / sanitized version. Built originally for a daily data-ops workflow; secrets and proprietary logic removed.
+> Sanitized version of a system running a live content account.
 
 ## Features
-- 💬 **Q&A in chat** — send a query, get a structured answer (pluggable backend: API / LLM / RAG).
-- 🗓️ **Scheduled push** — daily/▾ reports delivered to a group or DM.
-- ✅ **Approval flow** — drafts are pushed for review; reply `发3 / 改3 新内容 / 转3` to publish, edit, or forward.
-- 🔌 **WebSocket long-connection** — runs from a laptop/VPS, no public IP or tunneling needed.
+- ✍️ **Content engine** — niche/tone/audience/angles from `config.json`; generates posts via **local LLM (Ollama)** → zero per-post API cost.
+- 🔁 **Angle rotation** so daily posts don't repeat.
+- ✅ **Approval before publish** — drafts go to Lark/Telegram; one tap to send/edit.
+- 🗓️ **Scheduler** — posting time-table per account; multi-account ready.
+- 🛡️ **Compliance guard** — rejects posts containing error text / banned phrases; enforces length & disclaimers.
 
 ## Tech
-Python · `lark-oapi` (Feishu open platform) · threading · pluggable LLM backend.
+Python · Ollama · `curl_cffi` (publishing) · schedulers (cron/launchd) · pluggable platforms.
 
-## How it works
-```
-Feishu message → WebSocket event → command router
-  ├─ query        → backend (API/LLM/RAG) → reply
-  ├─ approval(发/改/转) → publish pipeline
-  └─ scheduled    → push report to chat
+## Config (excerpt)
+```json
+{ "niche": "fitness", "tone": "friendly, practical",
+  "angles": ["bust a myth", "one habit to start today"],
+  "schedule": [{"time":"08:00"},{"time":"20:00"}],
+  "approval": {"channel":"lark","auto_publish":false} }
 ```
 
 ## Run
 ```bash
-pip install lark-oapi
-export FEISHU_APP_ID=...   FEISHU_APP_SECRET=...
-python feishu_bot.py
+python engine.py config.json      # generate a post
+python publisher.py config.json   # post after approval
 ```
 
 ## Notes
-Production-grade error handling, run-once flags, and GBK/UTF-8 cross-platform handling included. Ask me to adapt it to Slack / Telegram / WeChat Work.
+Built for creators/SMBs who want consistent posting without daily effort. I can add Xiaohongshu / WeChat / X, image generation, and analytics.
